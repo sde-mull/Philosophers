@@ -6,7 +6,7 @@
 /*   By: sde-mull <sde.mull@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/20 15:56:07 by sde-mull          #+#    #+#             */
-/*   Updated: 2022/11/08 02:13:51 by sde-mull         ###   ########.fr       */
+/*   Updated: 2022/11/14 01:07:41 by sde-mull         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,15 +22,17 @@ void destroy_mutex(t_data *ginfo)
 	pthread_mutex_destroy(&ginfo->death);
 }
 
-bool check_death(t_philo *info, t_data *ginfo, int next)
+bool check_death(t_philo *info, t_data *ginfo)
 {
 	pthread_mutex_lock(&ginfo->death);
 	if (ginfo->dead == 1 || ginfo->times_eaten == 1)
 	{
+		//printf("||||philo nbr %d|||\n", info->id + 1);
 		pthread_mutex_unlock(&ginfo->death);
 		return (true);
 	}
 	ginfo->c_time = get_time(ginfo->p_time);
+	//printf("%lld current time is this for this philo %d\n\n", ginfo->c_time - info->last_meal, info->id + 1);
 	if (ginfo->c_time - info->last_meal >= ginfo->time_die)
 	{
 		ginfo->dead = 1;
@@ -47,57 +49,60 @@ bool check_death(t_philo *info, t_data *ginfo, int next)
 
 void	ft_sleepthink(t_data *ginfo, t_philo *info, int next)
 {
-	if (!(check_death(info, ginfo, next)))
+	if (!(check_death(info, ginfo)))
 	{
 		printf("%lld ms %d is sleeping\n",ginfo->c_time, info->id + 1);
-		udumb(ginfo->time_sleep);
-		if (!(check_death(info, ginfo, next)))
+		udumb(ginfo->time_sleep, info, ginfo);
+		if (!(check_death(info, ginfo)))
 			printf("%lld ms %d is thinking\n", ginfo->c_time, info->id + 1);
 	}
 	else
-	{
 		return ;
-	}
 }
 
 void	ft_eating(t_data *ginfo, t_philo *info, int next)
 {
 	pthread_mutex_lock(&(ginfo->locker[info->id].eat));
-	if (!(check_death(info, ginfo, next)))
+	if (!(check_death(info, ginfo)))
 	{
 		printf("%lld ms %d has taken a fork\n",ginfo->c_time, info->id + 1);
 		pthread_mutex_lock(&(ginfo->locker[next].eat));
-		if (!(check_death(info, ginfo, next)))
+		if (!(check_death(info, ginfo)))
 		{
 			printf("%lld ms %d has taken a fork\n",ginfo->c_time, info->id + 1);
 			printf("%lld ms %d is eating\n",ginfo->c_time, info->id + 1);
-			udumb(ginfo->time_eat);
-			info->times_eat += 1;
+			udumb(ginfo->time_eat, info, ginfo);
 			info->last_meal = ginfo->c_time;
+			//printf("%lld current time is this for this philo %d\n\n", ginfo->c_time, info->id + 1);
+			info->times_eat += 1;
 		}
-		else
-			return ;
 		pthread_mutex_unlock(&(ginfo->locker[next].eat));
 	}
-	else
-		return ;
 	pthread_mutex_unlock(&(ginfo->locker[info->id].eat));
 }
 
-
-
-void	ft_table(t_data *ginfo, t_philo *info)
+bool	ft_table(t_data *ginfo, t_philo *info)
 {
 	int next;
 	
 	next = info->id + 1;
 	if (info->id == ginfo->nbr_philo - 1)
 		next = 0;
+	if (ginfo->nbr_philo == 1)
+	{
+		pthread_mutex_lock(&(ginfo->locker[info->id].eat));
+		printf("%lld ms %d has taken a fork\n",ginfo->c_time, info->id + 1);
+		udumb(ginfo->time_die, info, ginfo);
+		pthread_mutex_unlock(&(ginfo->locker[info->id].eat));
+		if (check_death(info, ginfo))
+			return (true);
+	}
 	ft_eating(ginfo, info, next);
-	if (info->times_eat == ginfo->nbr_eat)
-		ginfo->times_eaten = 1;
-	ft_sleepthink(ginfo, info, next);
 	//printf("|||%d has eaten %d|||\n", info->id + 1, info->times_eat);
+	if (info->times_eat == ginfo->nbr_eat)
+		return (true);
+	ft_sleepthink(ginfo, info, next);
+	return (false);
 }
 
 void *routine(void *ginfo)
@@ -110,13 +115,12 @@ void *routine(void *ginfo)
 	ginfo_copy->c_time = 0;
 	ginfo_copy->p_time = get_time(-1);
 	info.times_eat = 0;
+	info.last_meal = 0;
 	ginfo_copy->times_eaten = 0;
+	//printf("%lld past time\n", ginfo_copy->p_time);
 	while(!ginfo_copy->dead)
-	{
-		ft_table(ginfo, &info);
-		if (ginfo_copy->times_eaten == 1)
+		if (ft_table(ginfo, &info))
 			break;
-	}
 	return (ginfo);
 }
 

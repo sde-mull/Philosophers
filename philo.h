@@ -19,14 +19,14 @@ typedef struct s_philo
 
 typedef struct s_data
 {
-	int forks;
-	int nbr_philo;
-	long long time_eat;
-	long long time_sleep;
-	long long time_die;
-	int nbr_eat;
-	int fil_id;
-	t_philo *locker;
+	int 			forks;
+	int 			nbr_philo;
+	long long 		time_eat;
+	long long		time_sleep;
+	long long 		time_die;
+	int 			nbr_eat;
+	int 			fil_id;
+	t_philo 		*locker;
 	pthread_mutex_t death;
 	pthread_mutex_t hobby;
 	long long 		c_time;
@@ -46,7 +46,7 @@ void 		*routine(void *ginfo);
 int 		ft_reunion(t_data *ginfo);
 bool		ft_create_mutex(t_data *ginfo);
 long long 	get_time(long long p_time);
-void		udumb(long long time);
-
+void		udumb(long long time, t_philo *info, t_data *data);
+bool 		check_death(t_philo *info, t_data *ginfo);
 
 #endif
