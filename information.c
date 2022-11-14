@@ -21,7 +21,7 @@ int ft_reunion(t_data *ginfo)
 	{
 		if (pthread_create(&filo[ginfo->fil_id], NULL, &routine, ginfo) != 0)
 			return(1);
-		usleep(1000);
+		usleep(25);
 		ginfo->fil_id++;
 	}
 	ginfo->fil_id = 0;

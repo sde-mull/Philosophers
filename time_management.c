@@ -32,7 +32,7 @@ void	udumb(long long utime, t_philo *info, t_data *ginfo)
 	start = time.tv_sec * 1000 + time.tv_usec / 1000;
 	while (get_time(start) < utime)
 	{
-		if (get_time(ginfo->p_time) - info->last_meal > ginfo->time_die)
+		if (get_time(ginfo->p_time) - info->last_meal >= ginfo->time_die)
 			break;
 	}
 }
