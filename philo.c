@@ -6,7 +6,7 @@
 /*   By: sde-mull <sde.mull@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/20 15:56:07 by sde-mull          #+#    #+#             */
-/*   Updated: 2022/11/15 16:18:03 by sde-mull         ###   ########.fr       */
+/*   Updated: 2022/11/15 16:57:03 by sde-mull         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,13 +25,12 @@ void destroy_mutex(t_data *ginfo)
 bool check_death(t_philo *info, t_data *ginfo)
 {
 	pthread_mutex_lock(&ginfo->death);
-	if (ginfo->dead == 1 || ginfo->times_eaten == 1)
+	if (ginfo->dead == 1)
 	{
 		pthread_mutex_unlock(&ginfo->death);
 		return (true);
 	}
 	ginfo->c_time = get_time(ginfo->p_time);
-	//printf("%lld -> last meal || %lld -> ginfo->c_time || %d -> philo\n\n", info->last_meal, ginfo->c_time, info->id + 1);
 	if (ginfo->c_time - info->last_meal >= ginfo->time_die)
 	{
 		ginfo->dead = 1;
@@ -68,8 +67,8 @@ void	ft_eating(t_data *ginfo, t_philo *info, int next)
 	pthread_mutex_lock(&(ginfo->locker[next].eat));
 	print_step("has taken a fork", info, ginfo);
 	print_step("is eating", info, ginfo);
-	info->last_meal = ginfo->c_time;
 	udumb(ginfo->time_eat, info, ginfo);
+	info->last_meal = ginfo->c_time;
 	//check_death(info, ginfo);
 	info->times_eat += 1;
 	pthread_mutex_unlock(&(ginfo->locker[next].eat));
