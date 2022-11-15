@@ -6,7 +6,7 @@
 /*   By: sde-mull <sde.mull@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/20 15:56:07 by sde-mull          #+#    #+#             */
-/*   Updated: 2022/11/14 01:07:41 by sde-mull         ###   ########.fr       */
+/*   Updated: 2022/11/15 16:18:03 by sde-mull         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ bool check_death(t_philo *info, t_data *ginfo)
 		return (true);
 	}
 	ginfo->c_time = get_time(ginfo->p_time);
+	//printf("%lld -> last meal || %lld -> ginfo->c_time || %d -> philo\n\n", info->last_meal, ginfo->c_time, info->id + 1);
 	if (ginfo->c_time - info->last_meal >= ginfo->time_die)
 	{
 		ginfo->dead = 1;
@@ -47,34 +48,31 @@ bool check_death(t_philo *info, t_data *ginfo)
 
 void	ft_sleepthink(t_data *ginfo, t_philo *info, int next)
 {
-	if (!(check_death(info, ginfo)))
-	{
-		printf("%lld ms %d is sleeping\n",ginfo->c_time, info->id + 1);
+		print_step("is sleeping", info, ginfo);
 		udumb(ginfo->time_sleep, info, ginfo);
-		if (!(check_death(info, ginfo)))
-			printf("%lld ms %d is thinking\n", ginfo->c_time, info->id + 1);
-	}
-	else
-		return ;
+		print_step("is Thinking", info, ginfo);
+}
+
+void	print_step(char *str, t_philo *info, t_data *ginfo)
+{
+	pthread_mutex_lock(&ginfo->hobby);
+	if (!(check_death(info, ginfo)))
+		printf("%lld ms %d %s\n",ginfo->c_time, info->id + 1, str);
+	pthread_mutex_unlock(&ginfo->hobby);
 }
 
 void	ft_eating(t_data *ginfo, t_philo *info, int next)
 {
 	pthread_mutex_lock(&(ginfo->locker[info->id].eat));
-	if (!(check_death(info, ginfo)))
-	{
-		printf("%lld ms %d has taken a fork\n",ginfo->c_time, info->id + 1);
-		pthread_mutex_lock(&(ginfo->locker[next].eat));
-		if (!(check_death(info, ginfo)))
-		{
-			printf("%lld ms %d has taken a fork\n",ginfo->c_time, info->id + 1);
-			printf("%lld ms %d is eating\n",ginfo->c_time, info->id + 1);
-			udumb(ginfo->time_eat, info, ginfo);
-			info->last_meal = ginfo->c_time;
-			info->times_eat += 1;
-		}
-		pthread_mutex_unlock(&(ginfo->locker[next].eat));
-	}
+	print_step("has taken a fork", info, ginfo);
+	pthread_mutex_lock(&(ginfo->locker[next].eat));
+	print_step("has taken a fork", info, ginfo);
+	print_step("is eating", info, ginfo);
+	info->last_meal = ginfo->c_time;
+	udumb(ginfo->time_eat, info, ginfo);
+	//check_death(info, ginfo);
+	info->times_eat += 1;
+	pthread_mutex_unlock(&(ginfo->locker[next].eat));
 	pthread_mutex_unlock(&(ginfo->locker[info->id].eat));
 }
 
@@ -125,11 +123,12 @@ int main(int argc, char *argv[])
 	
 	if(check_input(argc, argv) != 0)
 		return(printf("Error:\nInvalid input\n"));
-	ft_convert_info(&ginfo, argv, argc);
+	if (!ft_convert_info(&ginfo, argv, argc))
+		return (printf("Error:\nThere must be at least 1 philo\n"));
 	if (!ft_create_mutex(&ginfo))
-		return(printf("Failed to create array"));
+		return(printf("Failed to create array\n"));
 	if (ft_reunion(&ginfo))
-		return(printf("Error:\nFailed to create/join thread"));
+		return(printf("Error:\nFailed to create/join thread\n"));
 	destroy_mutex(&ginfo);
 	free(ginfo.locker);
 	return(0);

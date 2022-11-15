@@ -41,12 +41,13 @@ int			ft_isdigit(char *c);
 int			ft_atoi(const char *str);
 int			check_input(int arg, char **str);
 int 		ft_reunion(t_data *ginfo);
-void		ft_convert_info(t_data *ginfo, char **str, int arg);
+bool		ft_convert_info(t_data *ginfo, char **str, int arg);
 void 		*routine(void *ginfo);
 bool		ft_create_mutex(t_data *ginfo);
 long long 	get_time(long long p_time);
 void		udumb(long long time, t_philo *info, t_data *data);
 bool 		check_death(t_philo *info, t_data *ginfo);
 bool		ft_table(t_data *ginfo, t_philo *info);
+void		print_step(char *str, t_philo *info, t_data *ginfo);
 
 #endif

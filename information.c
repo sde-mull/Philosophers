@@ -6,7 +6,7 @@
 /*   By: sde-mull <sde.mull@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 03:36:53 by sde-mull          #+#    #+#             */
-/*   Updated: 2022/11/07 20:56:06 by sde-mull         ###   ########.fr       */
+/*   Updated: 2022/11/15 16:16:59 by sde-mull         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ int ft_reunion(t_data *ginfo)
 	return(0);
 }
 
-void	ft_convert_info(t_data *ginfo, char **str, int arg)
+bool	ft_convert_info(t_data *ginfo, char **str, int arg)
 {
 	ginfo->forks = ft_atoi(str[1]);
 	ginfo->nbr_philo = ft_atoi(str[1]);
@@ -43,8 +43,9 @@ void	ft_convert_info(t_data *ginfo, char **str, int arg)
 	ginfo->time_sleep = ft_atoi(str[4]);
 	if (arg == 6)
 		ginfo->nbr_eat = ft_atoi(str[5]);
-	else
-		ginfo->nbr_eat = -1;
+	if (ginfo->nbr_philo == 0)
+		return (false);
+	return (true);
 }
 
 bool	ft_create_mutex(t_data *ginfo)
