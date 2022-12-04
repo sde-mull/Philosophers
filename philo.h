@@ -9,14 +9,6 @@
 #include <stdbool.h>
 #include <sys/time.h>
 
-typedef struct s_philo
-{
-	int 			id;
-	pthread_mutex_t eat;
-	long long 		last_meal;
-	int				times_eat;
-} t_philo;
-
 typedef struct s_data
 {
 	int 			forks;
@@ -25,15 +17,25 @@ typedef struct s_data
 	long long		time_sleep;
 	long long 		time_die;
 	int 			nbr_eat;
-	int 			fil_id;
-	t_philo 		*locker;
+	struct s_philo 		*locker;
+	long long 		p_time;
+	pthread_mutex_t *eat;
 	pthread_mutex_t death;
 	pthread_mutex_t hobby;
-	long long 		c_time;
-	long long 		p_time;
-	int				dead;
-	int				times_eaten;
+	pthread_mutex_t time;
 } t_data;
+
+typedef struct s_philo
+{
+	int 			id;
+	long long 		last_meal;
+	int				times_eaten;
+	pthread_t		philo_init;
+	t_data			*info;
+	int				dead;
+	int 			eated;
+	long long 		c_time;
+} t_philo;
 
 
 
@@ -44,10 +46,12 @@ int 		ft_reunion(t_data *ginfo);
 bool		ft_convert_info(t_data *ginfo, char **str, int arg);
 void 		*routine(void *ginfo);
 bool		ft_create_mutex(t_data *ginfo);
-long long 	get_time(long long p_time);
-void		udumb(long long time, t_philo *info, t_data *data);
+long long 	get_time(void);
+void		udumb(long long time, t_philo *info, t_data *ginfo);
 bool 		check_death(t_philo *info, t_data *ginfo);
 bool		ft_table(t_data *ginfo, t_philo *info);
 void		print_step(char *str, t_philo *info, t_data *ginfo);
+bool		init_philo(t_data *ginfo);
+long long timediff(long long past, long long present);
 
 #endif
