@@ -3,24 +3,24 @@
 /*                                                        :::      ::::::::   */
 /*   extra.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sde-mull <sde.mull@student.42lisboa.com    +#+  +:+       +#+        */
+/*   By: sde-mull <sde-mull@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/20 15:56:13 by sde-mull          #+#    #+#             */
-/*   Updated: 2022/10/20 15:56:14 by sde-mull         ###   ########.fr       */
+/*   Updated: 2022/12/07 15:30:51 by sde-mull         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo.h"
+#include "../header/philo.h"
 
 int	ft_isdigit(char *c)
 {
-	int index;
+	int	index;
 
 	index = 0;
 	while (c[index] >= '0' && c[index] <= '9')
 		index++;
 	if (!c[index])
-		return(0);
+		return (0);
 	return (1);
 }
 
@@ -50,11 +50,11 @@ int	ft_atoi(const char *str)
 
 int	check_input(int arg, char **str)
 {
-	int index;
+	int	index;
 
 	index = 1;
 	if (!str || arg < 5 || arg > 6)
-		return(1);
+		return (1);
 	while (index < arg)
 	{
 		if (ft_isdigit(str[index]))
@@ -63,5 +63,20 @@ int	check_input(int arg, char **str)
 			return (3);
 		index++;
 	}
-	return(0);
+	return (0);
+}
+
+t_data	*ginfo(void)
+{
+	static t_data	ginfo;
+
+	return (&ginfo);
+}
+
+void	print_step(char *str, t_philo *info)
+{
+	pthread_mutex_lock(&ginfo()->hobby);
+	if (!(ginfo()->dead))
+		printf("%lld ms %d %s\n", get_time() - info->p_time, info->id + 1, str);
+	pthread_mutex_unlock(&ginfo()->hobby);
 }
